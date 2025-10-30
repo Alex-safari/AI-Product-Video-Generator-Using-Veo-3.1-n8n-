@@ -1,0 +1,417 @@
+{
+  "name": "Kie.ai VEO3.1 fast image to video subworkflow",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "video_prompt"
+            },
+            {
+              "name": "aspect_ratio"
+            },
+            {
+              "name": "imageUrls",
+              "type": "array"
+            },
+            {
+              "name": "generationType"
+            }
+          ]
+        }
+      },
+      "id": "afab59b3-7a55-43c9-b563-9d371444482f",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -1120,
+        32
+      ]
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -64,
+        176
+      ],
+      "id": "bdde0b90-0968-4850-8f20-4c247a7d0213",
+      "name": "Wait2",
+      "webhookId": "27d6af3b-2323-4a22-b5e2-4756473827a8"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "81d332c2-2e17-43d9-bf85-a7fba1d8598b",
+              "name": "data.taskId",
+              "value": "={{ $json.data.taskId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        112,
+        176
+      ],
+      "id": "3f417a71-945e-4525-b2bf-c89be280ae90",
+      "name": "Edit Fields14"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.successFlag }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "7e51e0bd-c19b-4e57-bd46-885e531aff52"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Completed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d3a0615b-8384-4ec3-b18b-daae9e6a350b",
+                    "leftValue": "={{ $json.data.successFlag }}",
+                    "rightValue": 3,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Failed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2495be20-ec23-4de3-a53f-baa79d75862e",
+                    "leftValue": "={{ $json.data.successFlag }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Failed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4c1dba3d-a788-4205-bb9e-51b0aa892c61",
+                    "leftValue": "={{ $json.data.successFlag }}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Retry"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -416,
+        0
+      ],
+      "id": "6e6091a9-1518-430a-813a-44e2d837719f",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "921e029e-6808-401a-8f1f-df59fcc8a78f",
+              "name": "resultUrls",
+              "value": "={{ $json.data.response.resultUrls.find(item => true) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -208,
+        -96
+      ],
+      "id": "a1412841-eeb7-43d6-971e-68840cc56933",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/veo/generate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "=prompt",
+              "value": "={{ $json.video_prompt }}"
+            },
+            {
+              "name": "=model",
+              "value": "=veo3_fast"
+            },
+            {
+              "name": "=aspectRatio",
+              "value": "={{ $json.aspect_ratio }}"
+            },
+            {
+              "name": "=imageUrls",
+              "value": "={{ $json.imageUrls }}"
+            },
+            {
+              "name": "generationType",
+              "value": "={{ $json.generationType }}"
+            },
+            {
+              "name": "enableFallback",
+              "value": "={{ true }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -896,
+        32
+      ],
+      "id": "9f3a854e-7dd4-407b-8cd9-168a1985e4df",
+      "name": "Submit generation request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ghhDmIje8kw9sST9",
+          "name": "Kie.ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.kie.ai/api/v1/veo/record-info",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -640,
+        32
+      ],
+      "id": "1b101998-aa8d-4da1-8bf5-f0edf53840d0",
+      "name": "Get request status",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ghhDmIje8kw9sST9",
+          "name": "Kie.ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "### Generation Types\t\n\n• TEXT_2_VIDEO — Text-to-video: using text prompts only\n• FIRST_AND_LAST_FRAMES_2_VIDEO — First and last frames to video: generate transition videos using two images\n• REFERENCE_2_VIDEO — Material-to-video: based on material images (only supports Fast model and 16:9 aspect ratio)\n\n### Aspect Ratio\n16:9  for landscape\n9:16   for portrait",
+        "height": 288,
+        "width": 480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1744,
+        -16
+      ],
+      "typeVersion": 1,
+      "id": "2ca83e17-2368-4b5e-934f-af6155589bd2",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "video_prompt": "In bright, diffuse daylight at Prestige Motors, Elena stands next to the front of the vibrant red Genesis GV70, featuring its bold crest grille, quad LED lamps, and dark sport wheels. She’s friendly, exuding confidence, and says: 'Add advanced Genesis safety and luxury to your daily drive—come take the GV70 for a spin today!'",
+          "aspect_ratio": "16:9",
+          "imageUrls": [
+            "http://res.cloudinary.com/dkbpv8ynm/image/upload/v1761327955/momlavcb9txdihsudkr9.png",
+            "http://res.cloudinary.com/dkbpv8ynm/image/upload/v1761327952/rcl0hioca0r4zndckg3s.png",
+            "http://res.cloudinary.com/dkbpv8ynm/image/upload/v1761327951/mcevireamzkxsxk67gwv.png"
+          ],
+          "generationType": "REFERENCE_2_VIDEO"
+        }
+      }
+    ],
+    "Submit generation request": [
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "49334927a3aeae13762f58fc5be5bc90"
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Submit generation request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields14": {
+      "main": [
+        [
+          {
+            "node": "Get request status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit generation request": {
+      "main": [
+        [
+          {
+            "node": "Get request status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get request status": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3583a523-2eff-45d9-8690-393c4950b822",
+  "meta": {
+    "instanceId": "8e5aa95c0552a76b6f87328dfd800de4d3cc8f008434bf9076c4dfb3cb935d83"
+  },
+  "id": "O40XQxkBF4EYgeS0",
+  "tags": []
+}
